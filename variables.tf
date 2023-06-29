@@ -73,7 +73,7 @@ locals {
   firewall_names = ["${var.name}]-fw1", "${var.name}-fw2"]
 
   firewalls = { for i, name in local.firewall_names : name => {
-    az  = var.var.availability_zones[i],
+    az  = var.availability_zones[i],
     pip = ["${name}-mgmt-pip", "${name}-untrust-pip"],
     nic = {
       "${name}-mgmt"    = "${var.vnet}/subnets/${var.subnet_names["mgmt"]}",
