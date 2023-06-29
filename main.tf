@@ -89,7 +89,7 @@ resource "azurerm_linux_virtual_machine" "fw" {
   network_interface_ids = [for nic in each.value.nic : azurerm_network_interface.nic[nic].id]
 
   availability_set_id = contains(local.az_regions, azurerm_resource_group.rg.location) ? null : one(azurerm_availability_set.avset).id
-  zone                = contains(local.az_regions, azurerm_resource_group.rg.location) ? [each.value] : null
+  zone                = contains(local.az_regions, azurerm_resource_group.rg.location) ? [each.value.az] : null
 
   os_disk {
     name                 = "${each.key}-osdisk"
