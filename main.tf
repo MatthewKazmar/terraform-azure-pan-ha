@@ -23,8 +23,8 @@ resource "azurerm_public_ip" "pip" {
   for_each = local.pips
 
   name                = each.key
-  resource_group_name = azurerm_availability_set.fw.name
-  location            = azurerm_availability_set.fw.location
+  resource_group_name = azurerm_availability_set.avset.name
+  location            = azurerm_availability_set.avset.location
   sku                 = "standard"
   allocation_method   = "static"
 
