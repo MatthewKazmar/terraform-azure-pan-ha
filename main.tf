@@ -23,8 +23,8 @@ resource "azurerm_public_ip" "pip" {
   for_each = local.pips
 
   name                = each.key
-  resource_group_name = azurerm_availability_set.avset.name
-  location            = azurerm_availability_set.avset.location
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
   sku                 = "standard"
   allocation_method   = "static"
 
@@ -88,7 +88,7 @@ resource "azurerm_linux_virtual_machine" "fw" {
 
   network_interface_ids = [for nic in each.value.nic : azurerm_network_interface.nic[nic].id]
 
-  availability_set_id = contains(local.az_regions, azurerm_resource_group.rg.location) ? null : azurerm_availability_set.avset.id
+  availability_set_id = contains(local.az_regions, azurerm_resource_group.rg.location) ? null : one(azurerm_availability_set.avset).id
   zones               = contains(local.az_regions, azurerm_resource_group.rg.location) ? [each.value] : null
 
   os_disk {
