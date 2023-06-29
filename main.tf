@@ -1,17 +1,12 @@
 # Deploy PAN VM-Series
-data "azurerm_virtual_network" "vnet" {
-  name                = split("/", var.vnet)[8]
-  resource_group_name = split("/", var.vnet)[4]
-}
-
 resource "azurerm_resource_group" "rg" {
   name     = var.resourcegroup
-  location = data.azurerm_virtual_network.vnet.location
+  location = var.vnet.location
 }
 
 # Deploy if avset is not supported.
 resource "azurerm_availability_set" "avset" {
-  count = contains(local.az_regions, azurerm_resource_group.rg.location) ? 0 : 1
+  count = contains(local.az_regions, var.vnet.location) ? 0 : 1
 
   name                = "${var.name}-avset"
   location            = azurerm_resource_group.rg.location
@@ -20,7 +15,7 @@ resource "azurerm_availability_set" "avset" {
 
 # Deploy Public IPs
 resource "azurerm_public_ip" "pip" {
-  for_each = local.pips
+  for_each = toset(local.pips)
 
   name                = each.key
   location            = azurerm_resource_group.rg.location
@@ -29,7 +24,7 @@ resource "azurerm_public_ip" "pip" {
   allocation_method   = "Static"
 
   #Specify a zone, if supported.
-  zones = contains(local.az_regions, azurerm_resource_group.rg.location) ? [each.value] : null
+  zones = contains(local.az_regions, var.vnet.location) ? [each.value] : null
 }
 
 # Deploy NICs

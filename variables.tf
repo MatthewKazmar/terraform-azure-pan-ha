@@ -45,7 +45,12 @@ variable "fwversion" {
 
 variable "vnet" {
   description = "Resource ID/URI of VNET."
-  type        = string
+  type = object({
+    name                = string,
+    resource_group_name = string,
+    location            = string,
+    id                  = string
+  })
 }
 
 variable "subnet_names" {
@@ -76,10 +81,10 @@ locals {
     az  = var.availability_zones[i],
     pip = ["${name}-mgmt-pip", "${name}-untrust-pip"],
     nic = {
-      "${name}-mgmt"    = "${var.vnet}/subnets/${var.subnet_names["mgmt"]}",
-      "${name}-untrust" = "${var.vnet}/subnets/${var.subnet_names["untrust"]}",
-      "${name}-trust"   = "${var.vnet}/subnets/${var.subnet_names["trust"]}",
-      "${name}-ha"      = "${var.vnet}/subnets/${var.subnet_names["ha"]}"
+      "${name}-mgmt"    = "${var.vnet.id}/subnets/${var.subnet_names["mgmt"]}",
+      "${name}-untrust" = "${var.vnet.id}/subnets/${var.subnet_names["untrust"]}",
+      "${name}-trust"   = "${var.vnet.id}/subnets/${var.subnet_names["trust"]}",
+      "${name}-ha"      = "${var.vnet.id}/subnets/${var.subnet_names["ha"]}"
     }
   } }
 
