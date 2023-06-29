@@ -36,7 +36,7 @@ resource "azurerm_public_ip" "pip" {
 resource "azurerm_network_interface" "nic" {
   for_each = local.nics
 
-  name                = each.name
+  name                = each.key
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 
@@ -44,11 +44,11 @@ resource "azurerm_network_interface" "nic" {
     name                          = "ipconf1"
     subnet_id                     = each.value
     private_ip_address_allocation = "dynamic"
-    public_ip_address_id          = contains(keys(azurerm_public_ip.pip), "${each.name}-pip") ? azurerm_public_ip.pip["${each.name}-pip"].id : null
+    public_ip_address_id          = contains(keys(azurerm_public_ip.pip), "${each.key}-pip") ? azurerm_public_ip.pip["${each.key}-pip"].id : null
   }
 
   enable_accelerated_networking = true
-  enable_ip_forwarding          = strcontains(each.name, "trust")
+  enable_ip_forwarding          = strcontains(each.key, "trust")
 }
 
 # Basic NSG
