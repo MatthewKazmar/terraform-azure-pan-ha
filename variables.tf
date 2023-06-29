@@ -37,7 +37,7 @@ variable "sku" {
   }
 }
 
-variable "version" {
+variable "fwversion" {
   description = "Version of the firewall to deploy. For valid images: get-azvmimage -location eastus -publishername paloaltonetworks -offer vmseries-flex -skus byol"
   type        = string
   default     = "10.1.9"

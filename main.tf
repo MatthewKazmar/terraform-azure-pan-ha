@@ -69,7 +69,7 @@ resource "azurerm_subnet_network_security_group_association" "mgmt" {
   network_security_group_id = azurerm_network_security_group.mgmt.id
 }
 
-resource "azurerm_subnet_network_security_group_association" "mgmt" {
+resource "azurerm_subnet_network_security_group_association" "untrust" {
   subnet_id = "${var.vnet}/subnets/${var.subnet_names["untrust"]}"
   network_security_group_id = azurerm_network_security_group.untrust.id
 }
@@ -101,6 +101,6 @@ resource "azurerm_linux_virtual_machine" "fw" {
     publisher = "paloaltonetworks"
     offer     = "vmseries-flex"
     sku       = var.sku
-    version   = var.version
+    version   = var.fwversion
   }
 }
