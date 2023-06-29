@@ -25,8 +25,8 @@ resource "azurerm_public_ip" "pip" {
   name                = each.key
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  sku                 = "standard"
-  allocation_method   = "static"
+  sku                 = "Standard"
+  allocation_method   = "Static"
 
   #Specify a zone, if supported.
   zones = contains(local.az_regions, azurerm_resource_group.rg.location) ? [each.value] : null
