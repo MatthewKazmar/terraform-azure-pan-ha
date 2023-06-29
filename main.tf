@@ -60,12 +60,12 @@ resource "azurerm_network_security_group" "untrust" {
 }
 
 resource "azurerm_subnet_network_security_group_association" "mgmt" {
-  subnet_id                 = "${var.vnet}/subnets/${var.subnet_names["mgmt"]}"
+  subnet_id                 = "${var.vnet.id}/subnets/${var.subnet_names["mgmt"]}"
   network_security_group_id = azurerm_network_security_group.mgmt.id
 }
 
 resource "azurerm_subnet_network_security_group_association" "untrust" {
-  subnet_id                 = "${var.vnet}/subnets/${var.subnet_names["untrust"]}"
+  subnet_id                 = "${var.vnet.id}/subnets/${var.subnet_names["untrust"]}"
   network_security_group_id = azurerm_network_security_group.untrust.id
 }
 

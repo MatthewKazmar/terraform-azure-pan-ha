@@ -89,7 +89,7 @@ locals {
   } }
 
   #Map of pip name -> az
-  pips = flatten([for k, v in local.firewalls : { for name in v.pip : name => v.az }])
+  pips = merge([for k, v in local.firewalls : { for name in v.pip : name => v.az }]...)
 
   #Map of nic to subnet uri
   nics = merge([for k, v in local.firewalls : v.nic]...)
