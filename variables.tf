@@ -75,7 +75,7 @@ locals {
     "westus3"
   ]
 
-  firewall_names = ["${var.name}]-fw1", "${var.name}-fw2"]
+  firewall_names = ["${var.name}-fw1", "${var.name}-fw2"]
 
   firewalls = { for i, name in local.firewall_names : name => {
     az  = var.availability_zones[i],
