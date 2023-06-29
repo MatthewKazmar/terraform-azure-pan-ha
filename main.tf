@@ -53,24 +53,24 @@ resource "azurerm_network_interface" "nic" {
 
 # Basic NSG
 resource "azurerm_network_security_group" "mgmt" {
-  name = "${var.name}-mgmt"
-  location = azurerm_resource_group.rg.location
+  name                = "${var.name}-mgmt"
+  location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 }
 
 resource "azurerm_network_security_group" "untrust" {
-  name = "${var.name}-untrust"
-  location = azurerm_resource_group.rg.location
+  name                = "${var.name}-untrust"
+  location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 }
 
 resource "azurerm_subnet_network_security_group_association" "mgmt" {
-  subnet_id = "${var.vnet}/subnets/${var.subnet_names["mgmt"]}"
+  subnet_id                 = "${var.vnet}/subnets/${var.subnet_names["mgmt"]}"
   network_security_group_id = azurerm_network_security_group.mgmt.id
 }
 
 resource "azurerm_subnet_network_security_group_association" "untrust" {
-  subnet_id = "${var.vnet}/subnets/${var.subnet_names["untrust"]}"
+  subnet_id                 = "${var.vnet}/subnets/${var.subnet_names["untrust"]}"
   network_security_group_id = azurerm_network_security_group.untrust.id
 }
 
@@ -89,7 +89,7 @@ resource "azurerm_linux_virtual_machine" "fw" {
   network_interface_ids = [for nic in each.value.nic : azurerm_network_interface.nic[nic].id]
 
   availability_set_id = contains(local.az_regions, azurerm_resource_group.rg.location) ? null : one(azurerm_availability_set.avset).id
-  zones               = contains(local.az_regions, azurerm_resource_group.rg.location) ? [each.value] : null
+  zone                = contains(local.az_regions, azurerm_resource_group.rg.location) ? [each.value] : null
 
   os_disk {
     name                 = "${each.key}-osdisk"

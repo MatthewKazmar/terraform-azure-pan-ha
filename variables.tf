@@ -10,8 +10,8 @@ variable "resourcegroup" {
 
 variable "user" {
   description = "Admin user to create."
-  type = string
-  default = "panadmin"
+  type        = string
+  default     = "panadmin"
 }
 
 variable "availability_zones" {
