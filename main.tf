@@ -15,7 +15,7 @@ resource "azurerm_availability_set" "avset" {
 
 # Deploy Public IPs
 resource "azurerm_public_ip" "pip" {
-  for_each = toset(local.pips)
+  for_each = local.pips
 
   name                = each.key
   location            = azurerm_resource_group.rg.location
