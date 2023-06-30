@@ -5,18 +5,18 @@ resource "azurerm_marketplace_agreement" "pan" {
   plan      = var.sku
 }
 
-resource "azurerm_resource_group" "rg" {
-  name     = var.resourcegroup
-  location = var.vnet.location
-}
+# resource "azurerm_resource_group" "rg" {
+#   name     = var.resourcegroup
+#   location = var.vnet.location
+# }
 
 # Deploy if avset is not supported.
 resource "azurerm_availability_set" "avset" {
   count = contains(local.az_regions, var.vnet.location) ? 0 : 1
 
   name                = "${var.name}-avset"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  location            = var.vnet.location
+  resource_group_name = var.resourcegroup
 }
 
 # Deploy Public IPs
@@ -24,8 +24,8 @@ resource "azurerm_public_ip" "pip" {
   for_each = local.pips
 
   name                = each.key
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  location            = var.vnet.location
+  resource_group_name = var.resourcegroup
   sku                 = "Standard"
   allocation_method   = "Static"
 
@@ -38,8 +38,8 @@ resource "azurerm_network_interface" "nic" {
   for_each = local.nics
 
   name                = each.key
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  location            = var.vnet.location
+  resource_group_name = var.resourcegroup
 
   ip_configuration {
     name                          = "ipconf1"
@@ -55,8 +55,8 @@ resource "azurerm_network_interface" "nic" {
 # Basic NSG
 resource "azurerm_network_security_group" "nsg" {
   name                = "${var.name}-nsg"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  location            = var.vnet.location
+  resource_group_name = var.resourcegroup
 }
 
 resource "azurerm_network_security_rule" "allowall-in" {
@@ -99,8 +99,8 @@ resource "azurerm_linux_virtual_machine" "fw" {
   for_each = local.firewalls
 
   name                = each.key
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  resource_group_name = var.resourcegroup
+  location            = var.vnet.location
   size                = var.size
 
   admin_username                  = var.user
@@ -114,8 +114,8 @@ resource "azurerm_linux_virtual_machine" "fw" {
     azurerm_network_interface.nic["${each.key}-ha"].id
   ]
 
-  availability_set_id = contains(local.az_regions, azurerm_resource_group.rg.location) ? null : one(azurerm_availability_set.avset).id
-  zone                = contains(local.az_regions, azurerm_resource_group.rg.location) ? each.value.az : null
+  availability_set_id = contains(local.az_regions, var.vnet.location) ? null : one(azurerm_availability_set.avset).id
+  zone                = contains(local.az_regions, var.vnet.location) ? each.value.az : null
 
   os_disk {
     name                 = "${each.key}-osdisk"
