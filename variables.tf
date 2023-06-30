@@ -122,7 +122,7 @@ locals {
 
   firewalls = { for i, name in local.firewall_names : name => {
     az  = var.availability_zones[i],
-    pip = var.var.enable_untrust_pips ? ["${name}-mgmt-pip", "${name}-untrust-pip"] : ["${name}-mgmt-pip"],
+    pip = var.enable_untrust_pips ? ["${name}-mgmt-pip", "${name}-untrust-pip"] : ["${name}-mgmt-pip"],
     nic = {
       "${name}-mgmt"    = "${var.vnet.id}/subnets/${var.subnet_names["mgmt"]}",
       "${name}-untrust" = "${var.vnet.id}/subnets/${var.subnet_names["untrust"]}",
