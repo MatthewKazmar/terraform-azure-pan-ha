@@ -1,6 +1,12 @@
 variable "name" {
-  description = "Base name of the firewall instances."
+  description = "Base name of the firewall instances. Also used for avset and nsg."
   type        = string
+}
+
+variable "name_override" {
+  description = "Use to directly specify firewall pair names."
+  type        = list(string)
+  default     = []
 }
 
 variable "resourcegroup" {
@@ -95,7 +101,7 @@ locals {
   fwversion = var.fwversion == "" ? var.flex == true ? "10.1.9" : "9.1.0" : var.fwversion
   fwoffer   = var.flex == true ? "vmseries-flex" : "vmseries1"
 
-  firewall_names = ["${var.name}-fw1", "${var.name}-fw2"]
+  firewall_names = var.name_override == [] ? ["${var.name}-fw1", "${var.name}-fw2"] : var.name_override
 
   firewalls = { for i, name in local.firewall_names : name => {
     az  = var.availability_zones[i],
