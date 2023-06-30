@@ -42,6 +42,12 @@ variable "availability_zones" {
   default     = [1, 2] #Pick the first two.
 }
 
+variable "apply_nsgs" {
+  description = "Set to false to skip NSG deployment."
+  type        = bool
+  default     = true
+}
+
 variable "size" {
   description = "Size of the Palo Alto VM."
   type        = string

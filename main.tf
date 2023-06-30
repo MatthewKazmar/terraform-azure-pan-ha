@@ -54,12 +54,16 @@ resource "azurerm_network_interface" "nic" {
 
 # Basic NSG
 resource "azurerm_network_security_group" "nsg" {
+  count = var.apply_nsgs ? 1 : 0
+
   name                = "${var.name}-nsg"
   location            = var.vnet.location
   resource_group_name = var.resourcegroup
 }
 
 resource "azurerm_network_security_rule" "allowall-in" {
+  count = var.apply_nsgs ? 1 : 0
+
   name                        = "allow-all-in"
   priority                    = 100
   direction                   = "Inbound"
@@ -69,11 +73,13 @@ resource "azurerm_network_security_rule" "allowall-in" {
   destination_port_range      = "*"
   source_address_prefix       = "*"
   destination_address_prefix  = "*"
-  resource_group_name         = azurerm_network_security_group.nsg.resource_group_name
-  network_security_group_name = azurerm_network_security_group.nsg.name
+  resource_group_name         = one(azurerm_network_security_group.nsg).resource_group_name
+  network_security_group_name = one(azurerm_network_security_group.nsg).name
 }
 
 resource "azurerm_network_security_rule" "allowall-out" {
+  count = var.apply_nsgs ? 1 : 0
+
   name                        = "allow-all-out"
   priority                    = 100
   direction                   = "Outbound"
@@ -83,15 +89,15 @@ resource "azurerm_network_security_rule" "allowall-out" {
   destination_port_range      = "*"
   source_address_prefix       = "*"
   destination_address_prefix  = "*"
-  resource_group_name         = azurerm_network_security_group.nsg.resource_group_name
-  network_security_group_name = azurerm_network_security_group.nsg.name
+  resource_group_name         = one(azurerm_network_security_group.nsg).resource_group_name
+  network_security_group_name = one(azurerm_network_security_group.nsg).nsg.name
 }
 
 resource "azurerm_subnet_network_security_group_association" "nsg" {
-  for_each = toset(["mgmt", "untrust", "trust"])
+  for_each = var.apply_nsgs ? toset(["mgmt", "untrust", "trust"]) : toset([])
 
   subnet_id                 = "${var.vnet.id}/subnets/${var.subnet_names[each.value]}"
-  network_security_group_id = azurerm_network_security_group.nsg.id
+  network_security_group_id = one(azurerm_network_security_group.nsg).id
 }
 
 # Deploy firewalls
