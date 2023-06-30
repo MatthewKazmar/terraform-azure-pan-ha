@@ -1,4 +1,10 @@
 # Deploy PAN VM-Series
+resource "azurerm_marketplace_agreement" "pan" {
+  publisher = "paloaltonetworks"
+  offer     = "vmseries-flex"
+  plan      = "byol"
+}
+
 resource "azurerm_resource_group" "rg" {
   name     = var.resourcegroup
   location = var.vnet.location
