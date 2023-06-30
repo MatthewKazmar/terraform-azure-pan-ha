@@ -78,8 +78,9 @@ resource "azurerm_linux_virtual_machine" "fw" {
   location            = azurerm_resource_group.rg.location
   size                = var.size
 
-  admin_username = var.user
-  admin_password = "mytemppassword"
+  admin_username                  = var.user
+  admin_password                  = "mytemppassword"
+  disable_password_authentication = false
 
   network_interface_ids = [for nic in keys(each.value.nic) : azurerm_network_interface.nic[nic].id]
 
