@@ -37,7 +37,8 @@ resource "azurerm_public_ip" "pip" {
   zones = contains(local.az_regions, var.vnet.location) ? [each.value] : null
 
   lifecycle {
-    ignore_changes = [tags]
+    ignore_changes        = [tags]
+    create_before_destroy = true
   }
 }
 
