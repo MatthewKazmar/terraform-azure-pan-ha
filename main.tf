@@ -17,6 +17,10 @@ resource "azurerm_availability_set" "avset" {
   name                = "${var.name}-avset"
   location            = var.vnet.location
   resource_group_name = var.resourcegroup
+
+  lifecycle {
+    ignore_changes = [tags]
+  }
 }
 
 # Deploy Public IPs
@@ -31,6 +35,10 @@ resource "azurerm_public_ip" "pip" {
 
   #Specify a zone, if supported.
   zones = contains(local.az_regions, var.vnet.location) ? [each.value] : null
+
+  lifecycle {
+    ignore_changes = [tags]
+  }
 }
 
 # Deploy NICs
@@ -50,6 +58,10 @@ resource "azurerm_network_interface" "nic" {
 
   enable_accelerated_networking = true
   enable_ip_forwarding          = strcontains(each.key, "trust")
+
+  lifecycle {
+    ignore_changes = [tags]
+  }
 }
 
 # Basic NSG
@@ -59,6 +71,10 @@ resource "azurerm_network_security_group" "nsg" {
   name                = "${var.name}-nsg"
   location            = var.vnet.location
   resource_group_name = var.resourcegroup
+
+  lifecycle {
+    ignore_changes = [tags]
+  }
 }
 
 resource "azurerm_network_security_rule" "allowall-in" {
@@ -143,6 +159,10 @@ resource "azurerm_linux_virtual_machine" "fw" {
   }
 
   boot_diagnostics {}
+
+  lifecycle {
+    ignore_changes = [tags]
+  }
 
   depends_on = [azurerm_marketplace_agreement.pan]
 }
