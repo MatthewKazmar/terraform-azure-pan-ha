@@ -18,6 +18,11 @@ variable "password" {
   description = "Admin user password."
   type        = string
   sensitive   = true
+
+  validation {
+    condition     = length(var.password) <= 31
+    error_message = "The PAN admin password must be 31 characters or less. Or enjoy the bootloop."
+  }
 }
 
 variable "availability_zones" {
