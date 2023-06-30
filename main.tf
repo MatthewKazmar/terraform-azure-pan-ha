@@ -1,7 +1,7 @@
 # Deploy PAN VM-Series
 resource "azurerm_marketplace_agreement" "pan" {
   publisher = "paloaltonetworks"
-  offer     = var.offer
+  offer     = local.fwoffer
   plan      = var.sku
 }
 
@@ -125,14 +125,14 @@ resource "azurerm_linux_virtual_machine" "fw" {
 
   source_image_reference {
     publisher = "paloaltonetworks"
-    offer     = var.offer
+    offer     = local.fwoffer
     sku       = var.sku
     version   = local.fwversion
   }
 
   plan {
     name      = var.sku
-    product   = var.offer
+    product   = local.fwoffer
     publisher = "paloaltonetworks"
   }
 
