@@ -99,4 +99,10 @@ resource "azurerm_linux_virtual_machine" "fw" {
     sku       = var.sku
     version   = var.fwversion
   }
+
+  plan {
+    name      = var.sku
+    product   = "vmseries-flex"
+    publisher = "paloaltonetworks"
+  }
 }
