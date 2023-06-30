@@ -60,9 +60,23 @@ resource "azurerm_network_security_group" "nsg" {
 }
 
 resource "azurerm_network_security_rule" "allowall-in" {
-  name                        = "allow-all"
+  name                        = "allow-all-in"
   priority                    = 100
   direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "*"
+  source_port_range           = "*"
+  destination_port_range      = "*"
+  source_address_prefix       = "*"
+  destination_address_prefix  = "*"
+  resource_group_name         = azurerm_network_security_group.nsg.resource_group_name
+  network_security_group_name = azurerm_network_security_group.nsg.name
+}
+
+resource "azurerm_network_security_rule" "allowall-out" {
+  name                        = "allow-all-out"
+  priority                    = 100
+  direction                   = "Outbound"
   access                      = "Allow"
   protocol                    = "*"
   source_port_range           = "*"

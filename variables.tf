@@ -45,8 +45,8 @@ variable "sku" {
 
 variable "flex" {
   description = "Use Flex license model."
-  type = bool
-  default = true
+  type        = bool
+  default     = true
 }
 
 variable "fwversion" {
@@ -88,7 +88,7 @@ locals {
   ]
 
   fwversion = var.fwversion == "" ? var.flex == true ? "10.1.9" : "9.1.0" : var.fwversion
-  fwoffer = var.flex == true ? "vmseries-flex" : "vmseries1"
+  fwoffer   = var.flex == true ? "vmseries-flex" : "vmseries1"
 
   firewall_names = ["${var.name}-fw1", "${var.name}-fw2"]
 
