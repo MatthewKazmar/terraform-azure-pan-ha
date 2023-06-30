@@ -112,5 +112,5 @@ resource "azurerm_linux_virtual_machine" "fw" {
     publisher = "paloaltonetworks"
   }
 
-  depends_on = [ azurerm_marketplace_agreement.pan ]
+  depends_on = [azurerm_marketplace_agreement.pan]
 }
