@@ -136,5 +136,7 @@ resource "azurerm_linux_virtual_machine" "fw" {
     publisher = "paloaltonetworks"
   }
 
+  boot_diagnostics {}
+
   depends_on = [azurerm_marketplace_agreement.pan]
 }
