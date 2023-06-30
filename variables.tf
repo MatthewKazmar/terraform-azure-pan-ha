@@ -17,6 +17,7 @@ variable "user" {
 variable "password" {
   description = "Admin user password."
   type        = string
+  sensitive = true
 }
 
 variable "availability_zones" {

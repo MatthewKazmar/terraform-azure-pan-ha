@@ -111,4 +111,6 @@ resource "azurerm_linux_virtual_machine" "fw" {
     product   = "vmseries-flex"
     publisher = "paloaltonetworks"
   }
+
+  depends_on = [ azurerm_marketplace_agreement.pan ]
 }
