@@ -48,6 +48,12 @@ variable "apply_nsgs" {
   default     = true
 }
 
+variable "enable_untrust_pips" {
+  description = "Create and apply pips to untrust interface."
+  type        = bool
+  default     = true
+}
+
 variable "size" {
   description = "Size of the Palo Alto VM."
   type        = string
@@ -116,7 +122,7 @@ locals {
 
   firewalls = { for i, name in local.firewall_names : name => {
     az  = var.availability_zones[i],
-    pip = ["${name}-mgmt-pip", "${name}-untrust-pip"],
+    pip = var.var.enable_untrust_pips ? ["${name}-mgmt-pip", "${name}-untrust-pip"] : ["${name}-mgmt-pip"],
     nic = {
       "${name}-mgmt"    = "${var.vnet.id}/subnets/${var.subnet_names["mgmt"]}",
       "${name}-untrust" = "${var.vnet.id}/subnets/${var.subnet_names["untrust"]}",
