@@ -38,7 +38,7 @@ resource "azurerm_network_interface" "nic" {
   ip_configuration {
     name                          = "ipconf1"
     subnet_id                     = each.value
-    private_ip_address_allocation = "dynamic"
+    private_ip_address_allocation = "Dynamic"
     public_ip_address_id          = contains(keys(azurerm_public_ip.pip), "${each.key}-pip") ? azurerm_public_ip.pip["${each.key}-pip"].id : null
   }
 
