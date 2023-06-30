@@ -91,7 +91,7 @@ resource "azurerm_subnet_network_security_group_association" "nsg" {
   for_each = toset(["mgmt", "untrust", "trust"])
 
   subnet_id                 = "${var.vnet.id}/subnets/${var.subnet_names[each.value]}"
-  network_security_group_id = azurerm_network_security_group.mgmt.id
+  network_security_group_id = azurerm_network_security_group.nsg.id
 }
 
 # Deploy firewalls
@@ -108,10 +108,10 @@ resource "azurerm_linux_virtual_machine" "fw" {
   disable_password_authentication = false
 
   network_interface_ids = [
-    azurerm_network_interface["${each.key}-mgmt"].id,
-    azurerm_network_interface["${each.key}-untrust"].id,
-    azurerm_network_interface["${each.key}-trust"].id,
-    azurerm_network_interface["${each.key}-ha"].id
+    azurerm_network_interface.nic["${each.key}-mgmt"].id,
+    azurerm_network_interface.nic["${each.key}-untrust"].id,
+    azurerm_network_interface.nic["${each.key}-trust"].id,
+    azurerm_network_interface.nic["${each.key}-ha"].id
   ]
 
   availability_set_id = contains(local.az_regions, azurerm_resource_group.rg.location) ? null : one(azurerm_availability_set.avset).id
