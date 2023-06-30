@@ -14,6 +14,11 @@ variable "user" {
   default     = "panadmin"
 }
 
+variable "password" {
+  description = "Admin user password."
+  type        = string
+}
+
 variable "availability_zones" {
   description = "List of Availability Zone numbers - if the region supports them."
   type        = list(number)
