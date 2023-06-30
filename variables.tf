@@ -43,10 +43,16 @@ variable "sku" {
   }
 }
 
+variable "flex" {
+  description = "Use Flex license model."
+  type = bool
+  default = true
+}
+
 variable "fwversion" {
   description = "Version of the firewall to deploy. For valid images: get-azvmimage -location eastus -publishername paloaltonetworks -offer vmseries-flex -skus byol"
   type        = string
-  default     = "10.1.9"
+  default     = ""
 }
 
 variable "vnet" {
@@ -80,6 +86,9 @@ locals {
     "westus2",
     "westus3"
   ]
+
+  fwversion = var.fwversion == "" ? var.flex == true ? "10.1.9" : "9.1.0" : var.fwversion
+  fwoffer = var.flex == true ? "vmseries-flex" : "vmseries1"
 
   firewall_names = ["${var.name}-fw1", "${var.name}-fw2"]
 

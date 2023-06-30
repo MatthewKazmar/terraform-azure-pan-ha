@@ -1,8 +1,8 @@
 # Deploy PAN VM-Series
 resource "azurerm_marketplace_agreement" "pan" {
   publisher = "paloaltonetworks"
-  offer     = "vmseries-flex"
-  plan      = "byol"
+  offer     = var.offer
+  plan      = var.sku
 }
 
 resource "azurerm_resource_group" "rg" {
@@ -53,26 +53,31 @@ resource "azurerm_network_interface" "nic" {
 }
 
 # Basic NSG
-resource "azurerm_network_security_group" "mgmt" {
-  name                = "${var.name}-mgmt"
+resource "azurerm_network_security_group" "nsg" {
+  name                = "${var.name}-nsg"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 }
 
-resource "azurerm_network_security_group" "untrust" {
-  name                = "${var.name}-untrust"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+resource "azurerm_network_security_rule" "allowall-in" {
+  name                        = "allow-all"
+  priority                    = 100
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "*"
+  source_port_range           = "*"
+  destination_port_range      = "*"
+  source_address_prefix       = "*"
+  destination_address_prefix  = "*"
+  resource_group_name         = azurerm_network_security_group.nsg.resource_group_name
+  network_security_group_name = azurerm_network_security_group.nsg.name
 }
 
-resource "azurerm_subnet_network_security_group_association" "mgmt" {
-  subnet_id                 = "${var.vnet.id}/subnets/${var.subnet_names["mgmt"]}"
+resource "azurerm_subnet_network_security_group_association" "nsg" {
+  for_each = toset(["mgmt", "untrust", "trust"])
+
+  subnet_id                 = "${var.vnet.id}/subnets/${var.subnet_names[each.value]}"
   network_security_group_id = azurerm_network_security_group.mgmt.id
-}
-
-resource "azurerm_subnet_network_security_group_association" "untrust" {
-  subnet_id                 = "${var.vnet.id}/subnets/${var.subnet_names["untrust"]}"
-  network_security_group_id = azurerm_network_security_group.untrust.id
 }
 
 # Deploy firewalls
@@ -88,7 +93,12 @@ resource "azurerm_linux_virtual_machine" "fw" {
   admin_password                  = var.password
   disable_password_authentication = false
 
-  network_interface_ids = [for nic in keys(each.value.nic) : azurerm_network_interface.nic[nic].id]
+  network_interface_ids = [
+    azurerm_network_interface["${each.key}-mgmt"].id,
+    azurerm_network_interface["${each.key}-untrust"].id,
+    azurerm_network_interface["${each.key}-trust"].id,
+    azurerm_network_interface["${each.key}-ha"].id
+  ]
 
   availability_set_id = contains(local.az_regions, azurerm_resource_group.rg.location) ? null : one(azurerm_availability_set.avset).id
   zone                = contains(local.az_regions, azurerm_resource_group.rg.location) ? each.value.az : null
@@ -101,14 +111,14 @@ resource "azurerm_linux_virtual_machine" "fw" {
 
   source_image_reference {
     publisher = "paloaltonetworks"
-    offer     = "vmseries-flex"
+    offer     = var.offer
     sku       = var.sku
-    version   = var.fwversion
+    version   = local.fwversion
   }
 
   plan {
     name      = var.sku
-    product   = "vmseries-flex"
+    product   = var.offer
     publisher = "paloaltonetworks"
   }
 
