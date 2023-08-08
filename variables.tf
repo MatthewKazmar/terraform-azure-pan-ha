@@ -107,20 +107,20 @@ variable "subnet_names" {
 
 variable "bootstrap_account_name" {
   description = "Bootstrap storage account"
-  type = string
-  default = ""
+  type        = string
+  default     = ""
 }
 
 variable "bootstrap_account_key" {
   description = "Bootstrap account key"
-  type = string
-  default = ""
+  type        = string
+  default     = ""
 }
 
 variable "bootstrap_share_name" {
   description = "Bootstrap share name"
-  type = string
-  default = ""
+  type        = string
+  default     = ""
 }
 
 locals {

@@ -107,7 +107,7 @@ resource "azurerm_network_security_rule" "allowall-out" {
   source_address_prefix       = "*"
   destination_address_prefix  = "*"
   resource_group_name         = one(azurerm_network_security_group.nsg).resource_group_name
-  network_security_group_name = one(azurerm_network_security_group.nsg).nsg.name
+  network_security_group_name = one(azurerm_network_security_group.nsg).name
 }
 
 resource "azurerm_subnet_network_security_group_association" "nsg" {
