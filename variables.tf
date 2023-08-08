@@ -10,7 +10,7 @@ variable "name_override" {
   nullable    = false
 
   validation {
-    condition     = (length(var.name_override) == 2 || var.name_override == [])
+    condition     = (length(var.name_override) == 2 || length(var.name_override) == 0)
     error_message = "If you override the firewall names, two entries, please."
   }
 }
@@ -137,7 +137,7 @@ locals {
   fwversion = var.fwversion == "" ? var.flex == true ? "10.1.9" : "9.1.0" : var.fwversion
   fwoffer   = var.flex == true ? "vmseries-flex" : "vmseries1"
 
-  firewall_names = var.name_override == [] ? ["${var.name}-fw1", "${var.name}-fw2"] : var.name_override
+  firewall_names = length(var.name_override) == 0 ? ["${var.name}-fw1", "${var.name}-fw2"] : var.name_override
 
   firewalls = { for i, name in local.firewall_names : name => {
     az  = var.availability_zones[i],
