@@ -7,9 +7,10 @@ variable "name_override" {
   description = "Use to directly specify firewall pair names."
   type        = list(string)
   default     = []
+  nullable    = False
 
   validation {
-    condition     = length(var.name_override) == 2 || length(var.name_override) == 0
+    condition     = length(var.name_override) == 2 || var.name_override == []
     error_message = "If you override the firewall names, two entries, please."
   }
 }
