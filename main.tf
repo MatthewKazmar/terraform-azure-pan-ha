@@ -130,6 +130,8 @@ resource "azurerm_linux_virtual_machine" "fw" {
   admin_password                  = var.password
   disable_password_authentication = false
 
+  custom_data = var.bootstrap_account_name == "" ? null : local.customdata
+
   network_interface_ids = [
     azurerm_network_interface.nic["${each.key}-mgmt"].id,
     azurerm_network_interface.nic["${each.key}-untrust"].id,

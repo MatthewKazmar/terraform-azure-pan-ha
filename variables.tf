@@ -74,13 +74,13 @@ variable "sku" {
 variable "flex" {
   description = "Use Flex license model."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "fwversion" {
   description = "Version of the firewall to deploy. For valid images: get-azvmimage -location eastus -publishername paloaltonetworks -offer vmseries-flex -skus byol"
   type        = string
-  default     = ""
+  default     = "9.1.0"
 }
 
 variable "vnet" {
@@ -103,6 +103,24 @@ variable "subnet_names" {
       ha      = string
     }
   )
+}
+
+variable "bootstrap_account_name" {
+  description = "Bootstrap storage account"
+  type = string
+  default = ""
+}
+
+variable "bootstrap_account_key" {
+  description = "Bootstrap account key"
+  type = string
+  default = ""
+}
+
+variable "bootstrap_share_name" {
+  description = "Bootstrap share name"
+  type = string
+  default = ""
 }
 
 locals {
@@ -136,4 +154,7 @@ locals {
 
   #Map of nic to subnet uri
   nics = merge([for k, v in local.firewalls : v.nic]...)
+
+  #bootstrap
+  customdata = base64encode("storage-accounts=${var.bootstrap_storage_account},access-key=${var.bootstrap_account_key},file-share=${var.bootstrap_share_name},share-directory=")
 }
