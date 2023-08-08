@@ -122,7 +122,7 @@ resource "azurerm_network_security_rule" "allowall-out" {
   network_security_group_name = one(azurerm_network_security_group.nsg).name
 }
 
-resource "azurerm_network_security_rule" "allowall-in" {
+resource "azurerm_network_security_rule" "mgmt" {
   count = var.apply_nsgs ? 1 : 0
 
   name                        = "mgmt-in"
