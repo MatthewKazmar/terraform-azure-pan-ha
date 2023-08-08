@@ -9,7 +9,7 @@ variable "name_override" {
   default     = []
 
   validation {
-    condition     = length(var.name_override) == 2 || var.name_override == []
+    condition     = length(var.name_override) == 2 || length(var.name_override) == 0
     error_message = "If you override the firewall names, two entries, please."
   }
 }
@@ -156,5 +156,5 @@ locals {
   nics = merge([for k, v in local.firewalls : v.nic]...)
 
   #bootstrap
-  customdata = base64encode("storage-accounts=${var.bootstrap_storage_account},access-key=${var.bootstrap_account_key},file-share=${var.bootstrap_share_name},share-directory=")
+  customdata = base64encode("storage-accounts=${var.bootstrap_account_name},access-key=${var.bootstrap_account_key},file-share=${var.bootstrap_share_name},share-directory=")
 }
