@@ -157,5 +157,5 @@ locals {
   nics = merge([for k, v in local.firewalls : v.nic]...)
 
   #bootstrap
-  customdata = base64encode("storage-accounts=${var.bootstrap_account_name},access-key=${var.bootstrap_account_key},file-share=${var.bootstrap_share_name},share-directory=")
+  customdata = base64encode("storage-account=${var.bootstrap_account_name},access-key=${var.bootstrap_account_key},file-share=${var.bootstrap_share_name},share-directory=")
 }
