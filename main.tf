@@ -78,6 +78,18 @@ resource "azurerm_network_security_group" "nsg" {
   }
 }
 
+resource "azurerm_network_security_group" "mgmt" {
+  count = var.apply_nsgs ? 1 : 0
+
+  name                = "${var.name}-mgmt-nsg"
+  location            = var.vnet.location
+  resource_group_name = var.resourcegroup
+
+  lifecycle {
+    ignore_changes = [tags]
+  }
+}
+
 resource "azurerm_network_security_rule" "allowall-in" {
   count = var.apply_nsgs ? 1 : 0
 
@@ -110,11 +122,34 @@ resource "azurerm_network_security_rule" "allowall-out" {
   network_security_group_name = one(azurerm_network_security_group.nsg).name
 }
 
+resource "azurerm_network_security_rule" "allowall-in" {
+  count = var.apply_nsgs ? 1 : 0
+
+  name                        = "mgmt-in"
+  priority                    = 100
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "*"
+  source_port_range           = "*"
+  destination_port_range      = "*"
+  source_address_prefixes     = ["3.94.47.185"]
+  destination_address_prefix  = "*"
+  resource_group_name         = one(azurerm_network_security_group.mgmt).resource_group_name
+  network_security_group_name = one(azurerm_network_security_group.mgmt).name
+}
+
 resource "azurerm_subnet_network_security_group_association" "nsg" {
-  for_each = var.apply_nsgs ? toset(["mgmt", "untrust", "trust"]) : toset([])
+  for_each = var.apply_nsgs ? toset(["untrust", "trust"]) : toset([])
 
   subnet_id                 = "${var.vnet.id}/subnets/${var.subnet_names[each.value]}"
   network_security_group_id = one(azurerm_network_security_group.nsg).id
+}
+
+resource "azurerm_subnet_network_security_group_association" "mgmt" {
+  count = var.apply_nsgs ? 1 : 0
+
+  subnet_id                 = "${var.vnet.id}/subnets/mgmt"
+  network_security_group_id = one(azurerm_network_security_group.mgmt).id
 }
 
 # Deploy firewalls
