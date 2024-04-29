@@ -3,20 +3,13 @@ variable "name" {
   type        = string
 }
 
-variable "name_override" {
-  description = "Use to directly specify firewall pair names."
-  type        = list(string)
-  default     = []
-  nullable    = false
-
-  validation {
-    condition     = (length(var.name_override) == 2 || length(var.name_override) == 0)
-    error_message = "If you override the firewall names, two entries, please."
-  }
+variable "resource_group_name" {
+  description = "Name of the firewall's resource group."
+  type        = string
 }
 
-variable "resourcegroup" {
-  description = "Name of the firewall's resource group."
+variable "location" {
+  description = "Location of the firewall."
   type        = string
 }
 
@@ -43,12 +36,6 @@ variable "availability_zones" {
   default     = [1, 2] #Pick the first two.
 }
 
-variable "apply_nsgs" {
-  description = "Set to false to skip NSG deployment."
-  type        = bool
-  default     = true
-}
-
 variable "enable_untrust_pips" {
   description = "Create and apply pips to untrust interface."
   type        = bool
@@ -72,90 +59,90 @@ variable "sku" {
   }
 }
 
-variable "flex" {
-  description = "Use Flex license model."
+variable "fwversion" {
+  description = "Version of the firewall to deploy. For valid images: get-azvmimage -location eastus -publishername paloaltonetworks -offer vmseries-flex -skus byol"
+  type        = string
+  default     = "10.2.4"
+}
+
+variable "vnet_name" {
+  description = "VNET Name"
+  type        = string
+}
+
+variable "vnet_cidr" {
+  description = "VNET address prefix"
+  type        = string
+}
+
+variable "admin_cidrs" {
+  description = "List of IPs for Mgmt NSG."
+  type        = list(string)
+  default     = [["3.94.47.185", "107.21.15.206"]]
+}
+
+variable "public_loadbalancer_ports" {
+  description = "Map of ports for Load Balancer rules. Specify <name>:udp/500 or <name>:tcp/443."
+  type        = map(string)
+  default     = []
+}
+
+variable "ipsec_ports_dsr" {
+  description = "Create the rules for IPSec udp/500/4500 with DSR."
   type        = bool
   default     = false
 }
 
-variable "fwversion" {
-  description = "Version of the firewall to deploy. For valid images: get-azvmimage -location eastus -publishername paloaltonetworks -offer vmseries-flex -skus byol"
-  type        = string
-  default     = "9.1.0"
-}
-
-variable "vnet" {
-  description = "Resource ID/URI of VNET."
-  type = object({
-    name                = string,
-    resource_group_name = string,
-    location            = string,
-    id                  = string
-  })
-}
-
-variable "subnet_names" {
-  description = "Map of subnet names."
-  type = object(
-    {
-      mgmt    = string,
-      untrust = string,
-      trust   = string,
-      ha      = string
-    }
-  )
-}
-
-variable "bootstrap_account_name" {
-  description = "Bootstrap storage account"
-  type        = string
-  default     = ""
-}
-
-variable "bootstrap_account_key" {
-  description = "Bootstrap account key"
-  type        = string
-  default     = ""
-}
-
-variable "bootstrap_share_name" {
-  description = "Bootstrap share name"
-  type        = string
-  default     = ""
-}
+variable "panorama_ip" { type = string }
+variable "template_name" { type = string }
+variable "devicegroup_name" { type = string }
+variable "vm_auth_key" { type = string }
+variable "auth_code" { type = string }
+variable "registration_pin_id" { type = string }
+variable "registration_pin_value" { type = string }
 
 locals {
-  az_regions = [
-    "centralus",
-    "eastus",
-    "eastus2",
-    "southcentralus",
-    "westus2",
-    "westus3"
+  regions = [
+    ["East US", "eastus", "EastUS", true],
+    ["West US", "westus", "WestUS", false],
+    ["North Central US", "northcentralus", "NorthCentralUS", false],
+    ["South Central US", "southcentralus", "SouthCentralUS", true]
   ]
 
-  fwversion = var.fwversion == "" ? var.flex == true ? "10.1.9" : "9.1.0" : var.fwversion
-  fwoffer   = var.flex == true ? "vmseries-flex" : "vmseries1"
+  region = flatten([for v in local.regions : v if contains(v, var.location)])
+  name   = startswith(var.name, local.region[2]) ? var.name : "${local.region[2]}-${var.name}"
 
-  firewall_names = length(var.name_override) == 0 ? ["${var.name}-fw1", "${var.name}-fw2"] : var.name_override
+  zones  = region[3] ? var.availability_zones : null
+  bits28 = 28 - split("/", var.vnet_cidr)[1]
 
-  firewalls = { for i, name in local.firewall_names : name => {
-    az  = var.availability_zones[i],
-    pip = var.enable_untrust_pips ? ["${name}-mgmt-pip", "${name}-untrust-pip"] : ["${name}-mgmt-pip"],
-    nic = {
-      "${name}-mgmt"    = "${var.vnet.id}/subnets/${var.subnet_names["mgmt"]}",
-      "${name}-untrust" = "${var.vnet.id}/subnets/${var.subnet_names["untrust"]}",
-      "${name}-trust"   = "${var.vnet.id}/subnets/${var.subnet_names["trust"]}",
-      "${name}-ha"      = "${var.vnet.id}/subnets/${var.subnet_names["ha"]}"
-    }
+  subnet_names = ["mgmt", "public", "internal", "ha"]
+  subnets = { for i, v in local.subnet_names :
+    "${var.name}-${v}" => cidrsubnet(var.vnet_cidr, bits28, i)
+  }
+  ilb_ip = cidrhost(local.subnets["internal"], 14)
+  firewalls = { for i, v in var.availability_zones : "${local.name}-${i + 1}" => {
+    az = local.zones ? local.zones[i] : null
   } }
 
-  #Map of pip name -> az
-  pips = merge([for k, v in local.firewalls : { for name in v.pip : name => v.az }]...)
+  bootstrap = { for k, v in local.firewalls : k => join(";", [
+    "type=dhcp-client",
+    "hostname=${k}",
+    "panorama-server=${var.panorama_ip}",
+    "tplname=${var.template_name}",
+    "dgname=${var.devicegroup_name}",
+    "dhcp-send-hostname=yes",
+    "dhcp-send-client-id=yes",
+    "dhcp-accept-server-hostname=no",
+    "dhcp-accept-server-domain=no",
+    "vm-auth-key=${var.vm_auth_key}",
+    "authcodes=${var.auth_code}",
+    "vm-series-auto-registration-pin-id=${var.registration_pin_id}",
+    "vm-series-auto-registration-pin-value=${var.registration_pin_value}"
+  ]) }
 
-  #Map of nic to subnet uri
-  nics = merge([for k, v in local.firewalls : v.nic]...)
-
-  #bootstrap
-  customdata = base64encode("storage-account=${var.bootstrap_account_name},access-key=${var.bootstrap_account_key},file-share=${var.bootstrap_share_name},share-directory=")
+  plb = (length(var.public_loadbalancer_ports) > 0) || var.ipsec_ports_dsr
+  plb_ipsec = var.ipsec_ports_dsr ? {
+    "ipsec-udp-500-ike"    = 500
+    "ipsec-udp-4500-nat-t" = 4500
+  } : {}
 }
