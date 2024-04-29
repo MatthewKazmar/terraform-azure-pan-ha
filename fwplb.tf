@@ -1,3 +1,21 @@
+resource "azurerm_public_ip" "plb" {
+  count = local.plb
+
+  name                = "${each.key}-PublicLoadBalancer"
+  location            = azurerm_resource_group.this.location
+  resource_group_name = azurerm_resource_group.this.name
+  sku                 = "Standard"
+  allocation_method   = "Static"
+
+  #Specify a zone, if supported.
+  zones = each.value["az"]
+
+  lifecycle {
+    ignore_changes        = [tags]
+    create_before_destroy = true
+  }
+}
+
 resource "azurerm_lb" "plb" {
   count = local.plb
 
@@ -7,10 +25,8 @@ resource "azurerm_lb" "plb" {
   sku                 = "Standard"
 
   frontend_ip_configuration {
-    name                          = "frontend"
-    private_ip_address            = local.ilb_ip
-    private_ip_address_allocation = "static"
-    subnet_id                     = azurerm_subnet.fw["internal"].id
+    name                 = "frontend"
+    public_ip_address_id = one(azurerm_public_ip.plb).id
   }
 }
 
