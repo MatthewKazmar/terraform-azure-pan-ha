@@ -8,7 +8,7 @@ resource "azurerm_public_ip" "plb" {
   allocation_method   = "Static"
 
   #Specify a zone, if supported.
-  zones = local.zones
+  zones = local.plb_zones
 
   lifecycle {
     ignore_changes        = [tags]

@@ -109,9 +109,10 @@ locals {
   region = flatten([for v in local.regions : v if contains(v, var.location)])
   name   = startswith(var.name, local.region[2]) ? var.name : "${local.region[2]}-${var.name}"
 
-  avset  = local.region[3] ? 0 : 1
-  zones  = local.region[3] ? var.availability_zones : [null, null]
-  bits28 = 28 - split("/", var.vnet_cidr)[1]
+  plb_zones = local.region[3] ? [1, 2, 3] : null
+  avset     = local.region[3] ? 0 : 1
+  zones     = local.region[3] ? var.availability_zones : [null, null]
+  bits28    = 28 - split("/", var.vnet_cidr)[1]
 
   subnet_names = ["mgmt", "public", "internal", "ha"]
   subnets = { for i, v in local.subnet_names :
