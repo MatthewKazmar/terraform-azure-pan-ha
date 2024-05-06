@@ -81,7 +81,7 @@ variable "admin_cidrs" {
 variable "public_loadbalancer_ports" {
   description = "Map of ports for Load Balancer rules. Specify <name>:udp/500 or <name>:tcp/443."
   type        = map(string)
-  default     = []
+  default     = {}
 }
 
 variable "ipsec_ports_dsr" {
