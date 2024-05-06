@@ -115,7 +115,7 @@ resource "azurerm_linux_virtual_machine" "fw" {
   size                = var.size
 
   admin_username                  = var.user
-  admin_password                  = var.password
+  admin_password                  = random_string.fw[each.key]
   disable_password_authentication = false
 
   custom_data = base64encode(local.bootstrap[each.key])

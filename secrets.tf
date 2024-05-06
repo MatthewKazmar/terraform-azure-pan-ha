@@ -1,7 +1,7 @@
 resource "aws_secretsmanager_secret" "fw" {
   for_each = local.firewalls
 
-  name = "virtualwan/panfw/${each.value}"
+  name = "virtualwan/panfw/${each.key}"
 }
 
 resource "random_string" "fw" {
