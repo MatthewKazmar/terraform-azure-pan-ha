@@ -6,6 +6,7 @@ variable "name" {
 variable "resource_group_name" {
   description = "Name of the firewall's resource group."
   type        = string
+  default     = ""
 }
 
 variable "location" {
@@ -23,6 +24,7 @@ variable "password" {
   description = "Admin user password."
   type        = string
   sensitive   = true
+  default     = ""
 
   validation {
     condition     = length(var.password) <= 31
@@ -65,11 +67,6 @@ variable "fwversion" {
   default     = "10.2.4"
 }
 
-variable "vnet_name" {
-  description = "VNET Name"
-  type        = string
-}
-
 variable "vnet_cidr" {
   description = "VNET address prefix"
   type        = string
@@ -78,7 +75,7 @@ variable "vnet_cidr" {
 variable "admin_cidrs" {
   description = "List of IPs for Mgmt NSG."
   type        = list(string)
-  default     = [["3.94.47.185", "107.21.15.206"]]
+  default     = ["3.94.47.185", "107.21.15.206"]
 }
 
 variable "public_loadbalancer_ports" {
