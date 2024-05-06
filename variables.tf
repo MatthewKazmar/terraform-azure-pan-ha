@@ -109,16 +109,16 @@ locals {
   region = flatten([for v in local.regions : v if contains(v, var.location)])
   name   = startswith(var.name, local.region[2]) ? var.name : "${local.region[2]}-${var.name}"
 
-  zones  = region[3] ? var.availability_zones : null
+  zones  = local.region[3] ? var.availability_zones : null
   bits28 = 28 - split("/", var.vnet_cidr)[1]
 
   subnet_names = ["mgmt", "public", "internal", "ha"]
   subnets = { for i, v in local.subnet_names :
-    "${var.name}-${v}" => cidrsubnet(var.vnet_cidr, bits28, i)
+    "${var.name}-${v}" => cidrsubnet(var.vnet_cidr, local.bits28, i)
   }
   ilb_ip = cidrhost(local.subnets["internal"], 14)
   firewalls = { for i, v in var.availability_zones : "${local.name}-${i + 1}" => {
-    az = local.zones ? local.zones[i] : null
+    az  = local.zones ? local.zones[i] : null
     pip = var.enable_untrust_pips
   } }
 
@@ -138,7 +138,7 @@ locals {
     "vm-series-auto-registration-pin-value=${var.registration_pin_value}"
   ]) }
 
-  plb = (length(var.public_loadbalancer_ports) > 0) || var.ipsec_ports_dsr
+  plb = (length(var.public_loadbalancer_ports) > 0) || var.ipsec_ports_dsr ? 1 : 0
   plb_ipsec = var.ipsec_ports_dsr ? {
     "ipsec-udp-500-ike"    = 500
     "ipsec-udp-4500-nat-t" = 4500

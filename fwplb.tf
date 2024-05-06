@@ -1,14 +1,14 @@
 resource "azurerm_public_ip" "plb" {
   count = local.plb
 
-  name                = "${each.key}-PublicLoadBalancer"
+  name                = "${local.name}-PublicLoadBalancer-pip"
   location            = azurerm_resource_group.this.location
   resource_group_name = azurerm_resource_group.this.name
   sku                 = "Standard"
   allocation_method   = "Static"
 
   #Specify a zone, if supported.
-  zones = each.value["az"]
+  zones = local.zones
 
   lifecycle {
     ignore_changes        = [tags]

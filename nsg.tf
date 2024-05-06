@@ -67,7 +67,7 @@ resource "azurerm_network_security_rule" "allowall_in" {
 }
 
 resource "azurerm_network_security_rule" "allowall_out" {
-  for_each = { for k, v in azurerm.azurerm_network_security_group.this : k => v if contains(["public", "internal"], k) }
+  for_each = { for k, v in azurerm.azurerm_network_security_group.this : k => v if contains(["public", "internal"], split(k, "-")[1]) }
 
   name                        = "allow-all-out"
   priority                    = 100
