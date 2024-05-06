@@ -30,7 +30,7 @@ resource "azurerm_network_interface" "mgmt" {
 
   ip_configuration {
     name                          = "ipconfig1"
-    subnet_id                     = azurerm_subnet["mgmt"].id
+    subnet_id                     = azurerm_subnet.this["mgmt"].id
     private_ip_address_allocation = "Dynamic"
     public_ip_address_id          = azurerm_public_ip.mgmt[each.key].id
   }
@@ -51,7 +51,7 @@ resource "azurerm_network_interface" "eth1_1" {
 
   ip_configuration {
     name                          = "ipconfig1"
-    subnet_id                     = azurerm_subnet["public"].id
+    subnet_id                     = azurerm_subnet.this["public"].id
     private_ip_address_allocation = "Dynamic"
   }
 
@@ -72,7 +72,7 @@ resource "azurerm_network_interface" "eth1_2" {
 
   ip_configuration {
     name                          = "ipconfig1"
-    subnet_id                     = azurerm_subnet["internal"].id
+    subnet_id                     = azurerm_subnet.this["internal"].id
     private_ip_address_allocation = "Dynamic"
     public_ip_address_id          = each.value["pip"] ? azurerm_public_ip.public[each.key].id : null
   }
@@ -93,7 +93,7 @@ resource "azurerm_network_interface" "ha" {
 
   ip_configuration {
     name                          = "ipconfig1"
-    subnet_id                     = azurerm_subnet["ha"].id
+    subnet_id                     = azurerm_subnet.this["ha"].id
     private_ip_address_allocation = "Dynamic"
   }
 
