@@ -25,7 +25,7 @@ resource "azurerm_public_ip" "mgmt" {
   allocation_method   = "Static"
 
   #Specify a zone, if supported.
-  zones = each.value["az"]
+  zones = [each.value["az"]]
 
   lifecycle {
     ignore_changes        = [tags]
