@@ -16,7 +16,7 @@ resource "aws_secretsmanager_secret_version" "fw" {
 
   secret_id = each.value.id
   secret_string = jsonencode({
-    username   = "admin"
+    username   = var.user
     password   = random_string.fw[each.key].result
     private_ip = azurerm_network_interface.mgmt[each.key].private_ip_address
     public_ip  = azurerm_public_ip.mgmt[each.key].ip_address
