@@ -62,7 +62,7 @@ resource "azurerm_lb_rule" "plb_ipsec" {
 
   loadbalancer_id                = one(azurerm_lb.plb).id
   name                           = each.key
-  protocol                       = "udp"
+  protocol                       = "Udp"
   frontend_port                  = each.value
   backend_port                   = each.value
   frontend_ip_configuration_name = one(azurerm_lb.plb).frontend_ip_configuration[0].name

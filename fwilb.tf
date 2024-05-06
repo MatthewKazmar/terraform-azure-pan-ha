@@ -8,7 +8,7 @@ resource "azurerm_lb" "ilb" {
     name                          = "frontend"
     private_ip_address            = local.ilb_ip
     private_ip_address_allocation = "static"
-    subnet_id                     = azurerm_subnet.fw["internal"].id
+    subnet_id                     = azurerm_subnet.this["internal"].id
   }
 }
 

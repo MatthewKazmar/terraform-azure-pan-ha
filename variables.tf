@@ -114,7 +114,7 @@ locals {
 
   subnet_names = ["mgmt", "public", "internal", "ha"]
   subnets = { for i, v in local.subnet_names :
-    "${var.name}-${v}" => cidrsubnet(var.vnet_cidr, local.bits28, i)
+    v => cidrsubnet(var.vnet_cidr, local.bits28, i)
   }
   ilb_ip = cidrhost(local.subnets["internal"], 14)
   firewalls = { for i, v in var.availability_zones : "${local.name}-${i + 1}" => {

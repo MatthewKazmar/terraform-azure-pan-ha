@@ -32,8 +32,8 @@ resource "azurerm_network_security_rule" "mgmt_in_2" {
   protocol                     = "*"
   source_port_range            = "*"
   destination_port_range       = "*"
-  source_address_prefixes      = azurerm_subnet.fw["mgmt"].address_prefixes
-  destination_address_prefixes = azurerm_subnet.fw["mgmt"].address_prefixes
+  source_address_prefixes      = azurerm_subnet.this["mgmt"].address_prefixes
+  destination_address_prefixes = azurerm_subnet.this["mgmt"].address_prefixes
   resource_group_name          = azurerm_resource_group.this.name
   network_security_group_name  = azurerm_network_security_group.this["mgmt"].name
 }
@@ -67,7 +67,7 @@ resource "azurerm_network_security_rule" "allowall_in" {
 }
 
 resource "azurerm_network_security_rule" "allowall_out" {
-  for_each = { for k, v in azurerm.azurerm_network_security_group.this : k => v if contains(["public", "internal"], split(k, "-")[1]) }
+  for_each = { for k, v in azurerm.azurerm_network_security_group.this : k => v if contains(["public", "internal"], k) }
 
   name                        = "allow-all-out"
   priority                    = 100
@@ -86,6 +86,6 @@ resource "azurerm_subnet_network_security_group_association" "this" {
   for_each = azurerm_network_security_group.this
 
   subnet_id = azurerm_subnet.this[each.key].id
-  #subnet_id                 = azurerm_subnet.fw[each.key].id
+  #subnet_id                 = azurerm_subnet.this[each.key].id
   network_security_group_id = each.value.id
 }
