@@ -8,7 +8,7 @@ output "firewalls" {
         password         = random_string.fw[k].result
       }
     }
-    public_load_balancer_ip   = azurerm_public_ip.plb.ip_address
+    public_load_balancer_ip   = try(one(azurerm_public_ip.plb).ip_address, null)
     internal_load_balancer_ip = local.ilb_ip
   }
 }
