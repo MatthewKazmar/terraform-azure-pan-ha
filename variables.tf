@@ -118,7 +118,7 @@ locals {
     v => cidrsubnet(var.vnet_cidr, local.bits28, i)
   }
   ilb_ip = cidrhost(local.subnets["internal"], 14)
-  firewalls = { for i, v in var.availability_zones : "${local.name}-${i + 1}" => {
+  firewalls = { for i, v in var.availability_zones : "${local.name}${i + 1}" => {
     az  = local.zones[i]
     pip = var.enable_untrust_pips
   } }
