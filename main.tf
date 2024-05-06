@@ -45,13 +45,13 @@ resource "azurerm_network_interface" "mgmt" {
 resource "azurerm_network_interface" "eth1_1" {
   for_each = local.firewalls
 
-  name                = "${each.key}-intenral"
+  name                = "${each.key}-internal"
   location            = azurerm_resource_group.this.location
   resource_group_name = azurerm_resource_group.this.name
 
   ip_configuration {
     name                          = "ipconfig1"
-    subnet_id                     = azurerm_subnet.this["public"].id
+    subnet_id                     = azurerm_subnet.this["internal"].id
     private_ip_address_allocation = "Dynamic"
   }
 
@@ -72,7 +72,7 @@ resource "azurerm_network_interface" "eth1_2" {
 
   ip_configuration {
     name                          = "ipconfig1"
-    subnet_id                     = azurerm_subnet.this["internal"].id
+    subnet_id                     = azurerm_subnet.this["public"].id
     private_ip_address_allocation = "Dynamic"
     public_ip_address_id          = each.value["pip"] ? azurerm_public_ip.public[each.key].id : null
   }
@@ -122,12 +122,12 @@ resource "azurerm_linux_virtual_machine" "fw" {
 
   network_interface_ids = [
     azurerm_network_interface.mgmt[each.key].id,
-    azurerm_network_interface.public[each.key].id,
-    azurerm_network_interface.internal[each.key].id,
+    azurerm_network_interface.eth1_1[each.key].id,
+    azurerm_network_interface.eth1_2[each.key].id,
     azurerm_network_interface.ha[each.key].id
   ]
 
-  availability_set_id = try(one(azurerm_availability_set.avset).id, null)
+  availability_set_id = try(one(azurerm_availability_set.this).id, null)
   zone                = each.value["az"]
 
   os_disk {
