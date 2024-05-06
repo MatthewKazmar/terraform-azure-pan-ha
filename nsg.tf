@@ -66,6 +66,22 @@ resource "azurerm_network_security_rule" "allowall_in" {
   network_security_group_name = azurerm_network_security_group.this["internal"].name
 }
 
+resource "azurerm_network_security_rule" "allow_in_ipsec" {
+  count = local.plb_ipsec == {} ? 0 : 1
+
+  name                        = "allow-all-ipsec"
+  priority                    = 100
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "Udp"
+  source_port_range           = "*"
+  destination_port_range      = "500, 4500"
+  source_address_prefix       = "*"
+  destination_address_prefix  = "*"
+  resource_group_name         = azurerm_resource_group.this.name
+  network_security_group_name = azurerm_network_security_group.this["public"].name
+}
+
 resource "azurerm_network_security_rule" "allowall_out" {
   for_each = { for k, v in azurerm_network_security_group.this : k => v if contains(["public", "internal"], k) }
 
