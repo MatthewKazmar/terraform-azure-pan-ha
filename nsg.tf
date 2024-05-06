@@ -63,7 +63,7 @@ resource "azurerm_network_security_rule" "allowall_in" {
   source_address_prefix       = "*"
   destination_address_prefix  = "*"
   resource_group_name         = azurerm_resource_group.this.name
-  network_security_group_name = azurerm_network_security_group.this["trust"].name
+  network_security_group_name = azurerm_network_security_group.this["internal"].name
 }
 
 resource "azurerm_network_security_rule" "allowall_out" {

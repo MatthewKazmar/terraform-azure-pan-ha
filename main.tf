@@ -8,7 +8,7 @@ resource "azurerm_resource_group" "this" {
 
 # Deploy if zones is not supported.
 resource "azurerm_availability_set" "this" {
-  count = local.zones ? 0 : 1
+  count = local.avset
 
   name                = "${var.name}-avset"
   location            = azurerm_resource_group.this.location

@@ -109,7 +109,8 @@ locals {
   region = flatten([for v in local.regions : v if contains(v, var.location)])
   name   = startswith(var.name, local.region[2]) ? var.name : "${local.region[2]}-${var.name}"
 
-  zones  = local.region[3] ? var.availability_zones : null
+  avset  = local.region[3] ? 0 : 1
+  zones  = local.region[3] ? var.availability_zones : [null, null]
   bits28 = 28 - split("/", var.vnet_cidr)[1]
 
   subnet_names = ["mgmt", "public", "internal", "ha"]
@@ -118,7 +119,7 @@ locals {
   }
   ilb_ip = cidrhost(local.subnets["internal"], 14)
   firewalls = { for i, v in var.availability_zones : "${local.name}-${i + 1}" => {
-    az  = local.zones ? local.zones[i] : null
+    az  = local.zones[i]
     pip = var.enable_untrust_pips
   } }
 
