@@ -74,7 +74,7 @@ resource "azurerm_network_interface" "eth1_2" {
     name                          = "ipconfig1"
     subnet_id                     = azurerm_subnet["internal"].id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.public[each.key].id
+    public_ip_address_id          = each.value["pip"] ? azurerm_public_ip.public[each.key].id : null
   }
 
   enable_accelerated_networking = true

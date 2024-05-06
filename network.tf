@@ -43,7 +43,7 @@ resource "aws_lambda_invocation" "fw_onboard" {
 }
 
 resource "azurerm_public_ip" "public" {
-  for_each = local.firewalls
+  for_each = {for k, v in local.firewalls: k => v if v["pip"]}
 
   name                = "${each.key}-public"
   location            = azurerm_resource_group.this.location

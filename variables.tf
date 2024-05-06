@@ -119,6 +119,7 @@ locals {
   ilb_ip = cidrhost(local.subnets["internal"], 14)
   firewalls = { for i, v in var.availability_zones : "${local.name}-${i + 1}" => {
     az = local.zones ? local.zones[i] : null
+    pip = var.enable_untrust_pips
   } }
 
   bootstrap = { for k, v in local.firewalls : k => join(";", [
