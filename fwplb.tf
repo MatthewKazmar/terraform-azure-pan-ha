@@ -37,7 +37,7 @@ resource "azurerm_lb_backend_address_pool" "plb" {
 }
 
 resource "azurerm_network_interface_backend_address_pool_association" "plb" {
-  for_each = { for k, v in azurerm_network_interface.eth1_1 : k => v if local.plb == 1 }
+  for_each = { for k, v in azurerm_network_interface.eth1_2 : k => v if local.plb == 1 }
 
   network_interface_id    = each.value.id
   ip_configuration_name   = each.value.ip_configuration[0].name
